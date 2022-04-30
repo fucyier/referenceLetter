@@ -75,7 +75,7 @@ contract LetterProposal{
         );
         letterID++;
        
-        referenceLetters[letterID]=letterType(msg.sender,_teacherAddress,_companyAddress,_proposalDescription,status.Created,LetterDocument(0,block.timestamp));
+        referenceLetters[letterID]=letterType(msg.sender,_teacherAddress,_companyAddress,_proposalDescription,status.Created,LetterDocument('',block.timestamp));
         
         emit LetterCreated(letterID, msg.sender,_teacherAddress);
 
