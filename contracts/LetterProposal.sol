@@ -13,7 +13,7 @@ contract LetterProposal{
         SeenByCompany
     } 
     struct LetterDocument{
-        bytes32 letterHash;
+        string letterHash;
         uint writtenDate; 
     }
     struct letterType{
@@ -113,7 +113,7 @@ contract LetterProposal{
     }
     
     
-    function addLetter(uint _letterID, bytes32 _letterHash ) public onlyTeacher{
+    function addLetter(uint _letterID, string memory _letterHash ) public onlyTeacher{
         require(referenceLetters[_letterID].teacher==msg.sender,
         "Yalnizca kendinize atanan belgeye ulasabilirsiiniz"
         );
