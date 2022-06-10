@@ -15,6 +15,7 @@ contract LetterProposal{
     struct LetterDocument{
         string letterHash;
         uint writtenDate; 
+        uint seenDate;
     }
     struct letterType{
         address student;
@@ -42,7 +43,7 @@ contract LetterProposal{
 
     event LetterAdded(uint letterID, address student,address teacher,uint addedDate);
 
-    event LetterSeenByCompany(uint letterID, address student, address teacher,address company, uint seenDate );
+    event LetterSeenByCompany(uint letterID, address student, address teacher, uint seenDate );
     
 
     modifier onlyStudent{
@@ -75,7 +76,7 @@ contract LetterProposal{
         );
         letterID++;
        
-        referenceLetters[letterID]=letterType(msg.sender,_teacherAddress,_companyAddress,_proposalDescription,status.Created,LetterDocument('',block.timestamp));
+        referenceLetters[letterID]=letterType(msg.sender,_teacherAddress,_companyAddress,_proposalDescription,status.Created,LetterDocument('',block.timestamp,0));
         
         emit LetterCreated(letterID, msg.sender,_teacherAddress);
 
@@ -127,7 +128,19 @@ contract LetterProposal{
 
     }
     
+ function letterSeenByCompany(uint _letterID) public onlyCompany{
+        require(referenceLetters[_letterID].company==msg.sender,
+        "Yalnizca kendinize atanan belgeye ulasabilirsiiniz"
+        );
+       require(referenceLetters[_letterID].letterStatus==status.TeacherCompleted,
+        "referansin kabul edilmis durumda olmasi gerekir"
+        );
+       
+          referenceLetters[_letterID].letterDocument.seenDate=block.timestamp;
+        referenceLetters[_letterID].letterStatus=status.SeenByCompany;
+             emit LetterSeenByCompany(_letterID, referenceLetters[_letterID].student, referenceLetters[_letterID].teacher, block.timestamp );
 
+    }
     
 
 } 
