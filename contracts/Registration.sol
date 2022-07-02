@@ -3,6 +3,7 @@ pragma solidity >=0.8.0 <0.9.0;
 contract Registration{
   address YOK;
   address TOBB;
+  address CB;
   enum Unvan { DR, AS_PROF, PROF,MD }
   struct Teacher
     {
@@ -28,22 +29,25 @@ contract Registration{
       uint identityNumber;
       string name;
     }
-    
+     struct PublicInstitution
+    {
+      bool status;
+      string name;
+    }
     mapping(address=>Teacher) public teachers;
     mapping(address=>Company) public  companies;
+    mapping(address=>PublicInstitution) public publicInstitutions;
     mapping(address=>Student) public students;
-
-    // mapping(address=>bool) public isTeacher;
-    // mapping(address=>bool) public isCompany;
-    // mapping(address=>bool) public isStudent;
 
     event StudentRegisteredLog(address _studentAddress,string  _name,string  _surname,string  _department,string  _university);
     event TeacherRegisteredLog(address _teacherAddress,string  _name,string  _surname,string  _department,string  _university,Unvan _unvan);
     event CompanyRegisteredLog(address _companyAddress,string  _name, uint _identityNumber,string  _country);
+    event PublicInstitutionRegisteredLog(address _institutionAddress,string  _name);
 
-    constructor (address yok,address tobb){
-        YOK=yok;
-        TOBB=tobb;
+    constructor (address _yok,address _tobb,address _cb){
+        YOK=_yok;
+        TOBB=_tobb;
+        CB=_cb;
     }
     
     modifier onlyYOK{
@@ -59,16 +63,29 @@ contract Registration{
       );
       _;
     }    
+    modifier onlyCB{
+      require(msg.sender == CB,
+      "Sadece CB bu islemi yapabilir."
+      );
+      _;
+    }    
 
      function isStudent(address _address) public view returns(bool){
         return students[_address].status;
     }
-         function isTeacher(address _address) public view returns(bool){
+      function isTeacher(address _address) public view returns(bool){
         return teachers[_address].status;
     }
-         function isCompany(address _address) public view returns(bool){
+      function isCompany(address _address) public view returns(bool){
         return companies[_address].status;
     }
+      function isPublicInstitution(address _address) public view returns(bool){
+        return publicInstitutions[_address].status;
+    }
+      function isRecipient(address _address) public view returns(bool){
+        return companies[_address].status||publicInstitutions[_address].status;
+    }
+
   function registerStudent(address _studentAddress,string memory _name,string memory _surname,string memory _department,string memory _university) 
   public onlyYOK{
         require(!students[_studentAddress].status,
@@ -110,6 +127,18 @@ contract Registration{
         companies[_companyAddress].identityNumber=_identityNumber;
 
         emit CompanyRegisteredLog( _companyAddress,  _name,  _identityNumber,  _country);
+       
+    }
+     function registerPublicInstitution(address _institutionAddress,string memory _name) 
+     public onlyCB{
+        require(!publicInstitutions[_institutionAddress].status,
+            "Public Institution exists already"
+            );
+            
+        publicInstitutions[_institutionAddress].status=true;
+        publicInstitutions[_institutionAddress].name=_name;
+
+        emit PublicInstitutionRegisteredLog( _institutionAddress,  _name);
        
     }
 }

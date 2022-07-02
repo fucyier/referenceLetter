@@ -10,17 +10,17 @@ contract LetterProposal{
         TeacherAdmitted,
         TeacherRejected,
         TeacherCompleted,
-        SeenByCompany
+        SeenByRecipient
     } 
     struct LetterDocument{
-        string letterHash;
+        bytes32 letterHash;
         uint writtenDate; 
         uint seenDate;
     }
-    struct letterType{
+    struct ReferenceLetter{
         address student;
         address teacher;
-        address company;
+        address recipient;
         string proposalDescription;
         status letterStatus;
         LetterDocument letterDocument;
@@ -31,7 +31,7 @@ contract LetterProposal{
         letterID=uint(keccak256(abi.encodePacked(msg.sender,block.timestamp,address(this))));
 
     }
-    mapping(uint=>letterType) public referenceLetters;
+    mapping(uint=>ReferenceLetter) public referenceLetters;
     
     event LetterCreated(uint letterID,address student,address teacher);
 
@@ -43,40 +43,40 @@ contract LetterProposal{
 
     event LetterAdded(uint letterID, address student,address teacher,uint addedDate);
 
-    event LetterSeenByCompany(uint letterID, address student, address teacher, uint seenDate );
+    event LetterSeenByRecipient(uint letterID, address student, address teacher, uint seenDate );
     
 
     modifier onlyStudent{
       require(registrationContract.isStudent(msg.sender),
-      "Bu islemi student yapabilir."
+      "Bu islemi sadece ogrenci yapabilir."
       );
       _;
     }   
     
     modifier onlyTeacher{
       require(registrationContract.isTeacher(msg.sender),
-      "Bu islemi teacher yapabilir."
+      "Bu islemi sadece akademisyen yapabilir."
       );
       _;
     }   
-    modifier onlyCompany{
-      require(registrationContract.isCompany(msg.sender),
-      "Bu islemi company yapabilir."
+    modifier onlyRecipient{
+      require(registrationContract.isRecipient(msg.sender),
+      "Bu islemi sadece ozel veya resmi kurumlar yapabilir."
       );
       _;
     }
 
     
-    function newLetterProposal(address _teacherAddress,address _companyAddress,string memory _proposalDescription) public onlyStudent {
+    function newLetterProposal(address _teacherAddress,address _recipientAddress,string memory _proposalDescription) public onlyStudent {
         require(registrationContract.isTeacher(_teacherAddress),
-        "Teacher address not recognized."
+        "Akademisyen adresi tanimlanamadi."
         );
-          require(registrationContract.isCompany(_companyAddress),
-        "Company address not recognized."
+          require(registrationContract.isCompany(_recipientAddress)||registrationContract.isPublicInstitution(_recipientAddress),
+        "Ozel/resmi kurum adresi tanimlanamadi."
         );
         letterID++;
        
-        referenceLetters[letterID]=letterType(msg.sender,_teacherAddress,_companyAddress,_proposalDescription,status.Created,LetterDocument('',block.timestamp,0));
+        referenceLetters[letterID]=ReferenceLetter(msg.sender,_teacherAddress,_recipientAddress,_proposalDescription,status.Created,LetterDocument(0,block.timestamp,0));
         
         emit LetterCreated(letterID, msg.sender,_teacherAddress);
 
@@ -114,7 +114,7 @@ contract LetterProposal{
     }
     
     
-    function addLetter(uint _letterID, string memory _letterHash ) public onlyTeacher{
+    function addLetter(uint _letterID, bytes32 _letterHash ) public onlyTeacher{
         require(referenceLetters[_letterID].teacher==msg.sender,
         "Yalnizca kendinize atanan belgeye ulasabilirsiiniz"
         );
@@ -128,17 +128,17 @@ contract LetterProposal{
 
     }
     
- function letterSeenByCompany(uint _letterID) public onlyCompany{
-        require(referenceLetters[_letterID].company==msg.sender,
+    function letterSeenByRecipient(uint _letterID) public onlyRecipient{
+        require(referenceLetters[_letterID].recipient==msg.sender,
         "Yalnizca kendinize atanan belgeye ulasabilirsiiniz"
         );
        require(referenceLetters[_letterID].letterStatus==status.TeacherCompleted,
         "referansin kabul edilmis durumda olmasi gerekir"
         );
        
-          referenceLetters[_letterID].letterDocument.seenDate=block.timestamp;
-        referenceLetters[_letterID].letterStatus=status.SeenByCompany;
-             emit LetterSeenByCompany(_letterID, referenceLetters[_letterID].student, referenceLetters[_letterID].teacher, block.timestamp );
+        referenceLetters[_letterID].letterDocument.seenDate=block.timestamp;
+        referenceLetters[_letterID].letterStatus=status.SeenByRecipient;
+        emit LetterSeenByRecipient(_letterID, referenceLetters[_letterID].student, referenceLetters[_letterID].teacher, block.timestamp );
 
     }
     
