@@ -1,0 +1,153 @@
+Input: _studentAddress, _name, _surname, _department, _university
+students öğrenci listesini gösteren array nesnesidir.
+if(metodu çağıran adres YÖK ve öğrenci adresi daha önce kayıtlı değil) then
+ 	students[_studentAddress].status=true,
+        students[_studentAddress].name=_name,
+        students[_studentAddress].surname=_surname,
+        students[_studentAddress].university=_university,
+        students[_studentAddress].department=_department
+
+	Öğrenci bilgileri ile birlikte ağa kaydedilir ve Bilgi mesajı ilgili paydaşlara gider.
+else
+Hata mesajı yazdır.
+end
+
+Input: _teacherAddress, _name, _surname, _department, _university, _unvan
+teachers akademisyen listesini gösteren array nesnesidir.
+if(metodu çağıran adres YÖK ve akademisyen adresi daha önce kayıtlı değil) then
+ 	teachers[_teacherAddress].status=true;
+        teachers[_teacherAddress].unvan=_unvan;
+        teachers[_teacherAddress].name=_name;
+        teachers[_teacherAddress].surname=_surname;
+        teachers[_teacherAddress].university=_university;
+        teachers[_teacherAddress].department=_department;
+
+	Akademisyen bilgileri ile birlikte ağa kaydedilir ve Bilgi mesajı ilgili paydaşlara gider.
+else
+Hata mesajı yazdır.
+end
+
+Input: _companyAddress, _name, _country, _department, _identityNumber
+companies şirket/firma listesini gösteren array nesnesidir.
+if(metodu çağıran adres TOBB ve firma adresi daha önce kayıtlı değil) then
+ 	 companies[_companyAddress].status=true;
+         companies[_companyAddress].name=_name;
+         companies[_companyAddress].country=_country;
+         companies[_companyAddress].identityNumber=_identityNumber;
+
+	Şirket/Firma bilgileri ile birlikte ağa kaydedilir ve Bilgi mesajı ilgili paydaşlara gider.
+else
+Hata mesajı yazdır.
+end
+
+Input: _institutionAddress, _name
+publicInstitutions resmi kurum listesini gösteren array nesnesidir.
+if(metodu çağıran adres CB ve resmi kurum adresi daha önce kayıtlı değil) then
+ 	publicInstitutions[_institutionAddress].status=true;
+        publicInstitutions[_institutionAddress].name=_name;
+
+	Resmi kurum bilgileri ile birlikte ağa kaydedilir ve Bilgi mesajı ilgili paydaşlara gider.
+else
+Hata mesajı yazdır.
+end
+
+newLetterProposal
+Input: _teacherAddress, _companyAddress, _proposalDescription
+status referans mektubunun hangi aşamada olduğunu gösteren enumeration değeridir 
+(Created, TeacherAdmitted,TeacherRejected,TeacherCompleted, SeenByCompany)
+if(metodu çağıran adres öğrenci)then
+	if(akademisyen adresi kayıtlı değil veya firma adresi kayıtlı değil) then
+	Hata mesajı döndür
+	else
+ 	letterID otomatik olarak artır.
+	status değerine Created atanır
+	İlgili bilgiler ile Referans mektubunu oluştur.
+	İlgili paydaşlara bilgi mesajı gider
+	end
+else
+Hata mesajı yazdır.
+end
+
+letterFirstEvaluate
+Input: _letterID
+
+if(metodu çağıran adres akademisyen) then
+	if(Gönderilen referans bu adresteki akademisyen ile ilişkilendirilmemiş) then
+	Hata mesajı döndür
+	if(referans durumu CREATED değerinde değil) then
+	Hata mesajı döndür
+	else
+	Referans talebi gerekçesiyle görülür.
+	İlgili paydaşlara bilgi mesajı gider
+	end
+else
+Hata mesajı yazdır.
+end
+
+
+letterAcceptOrReject
+Input: _letterID, accepted, rejectReason
+
+if(metodu çağıran adres akademisyen) then
+	if(Gönderilen referans bu adresteki akademisyen ile ilişkilendirilmemiş) then
+	Hata mesajı döndür
+	if(referans durumu CREATED değerinde değil) then
+	Hata mesajı döndür
+	else
+	if(referans kabul edilir)then
+	status değeri TeacherAdmitted değerine atanır
+	İlgili paydaşlara bilgi mesajı gider
+	else
+	status değeri TeacherRejected değerine atanır
+	Red gerekçesi yazılır
+	İlgili paydaşlara bilgi mesajı gider
+	end
+	end
+else
+Hata mesajı yazdır.
+end
+
+addLetter
+Input: _letterID, _letterHash
+
+if(metodu çağıran adres akademisyen) then
+	if(Gönderilen referans bu adresteki akademisyen ile ilişkilendirilmemiş) then
+	Hata mesajı döndür
+	if(referans durumu TeacherAdmitted değerinde değil) then
+	Hata mesajı döndür
+	else
+	Oluşturulan belge IPFS sistemine kaydedilerek elde edilen hash değeri referans mektubuna kaydedilir.
+	status değeri TeacherCompleted değerine atanır
+	İlgili paydaşlara bilgi mesajı gider
+	end
+else
+Hata mesajı yazdır.
+end
+
+letterSeenByCompany
+
+Input: _letterID
+
+if(metodu çağıran adres özel veya resmi kurum) then
+	if(Gönderilen referans bu adresteki özel veya resmi kurum ile ilişkilendirilmemiş) then
+	Hata mesajı döndür
+	if(referans durumu TeacherCompleted değerinde değil) then
+	Hata mesajı döndür
+	else
+	Referans IPFS hash değeri üzerinden belge yüklenir.
+	İlgili kurum veya kuruluş akademik referans dokumanını görerek süreci tamamlar.
+	status değeri SeenByCompany değerine atanır
+	İlgili paydaşlara bilgi mesajı gider
+	end
+else
+Hata mesajı yazdır.
+end
+
+
+
+
+
+
+
+
+
