@@ -12,6 +12,8 @@ contract LetterProposal{
         TeacherCompleted,
         SeenByRecipient
     } 
+
+
     struct LetterDocument{
         bytes32 letterHash;
         uint writtenDate; 
@@ -25,14 +27,18 @@ contract LetterProposal{
         status letterStatus;
         LetterDocument letterDocument;
 
-    }
+    } 
     constructor(address registrationAddress)  {
         registrationContract=Registration(registrationAddress);
         letterID=uint(keccak256(abi.encodePacked(msg.sender,block.timestamp,address(this))));
 
     }
     mapping(uint=>ReferenceLetter) public referenceLetters;
-    
+
+    function getReferenceLetter(uint _letterId) public view returns ( ReferenceLetter memory) {
+       return referenceLetters[_letterId];
+    }
+
     event LetterCreated(uint letterID,address student,address teacher);
 
     event LetterEvaluated(uint letterID,address student,address teacher,uint evaluatedDate);
@@ -43,9 +49,14 @@ contract LetterProposal{
 
     event LetterAdded(uint letterID, address student,address teacher,uint addedDate);
 
-    event LetterSeenByRecipient(uint letterID, address student, address teacher, uint seenDate );
+   
     
-
+     modifier onlyUniversity{
+      require(registrationContract.isUniversity(msg.sender),
+      "Bu islemi sadece universite yapabilir."
+      );
+      _;
+    }   
     modifier onlyStudent{
       require(registrationContract.isStudent(msg.sender),
       "Bu islemi sadece ogrenci yapabilir."
@@ -127,20 +138,4 @@ contract LetterProposal{
            emit LetterAdded( _letterID,  referenceLetters[_letterID].student, msg.sender, block.timestamp);
 
     }
-    
-    function letterSeenByRecipient(uint _letterID) public onlyRecipient{
-        require(referenceLetters[_letterID].recipient==msg.sender,
-        "Yalnizca kendinize atanan belgeye ulasabilirsiiniz"
-        );
-       require(referenceLetters[_letterID].letterStatus==status.TeacherCompleted,
-        "referansin kabul edilmis durumda olmasi gerekir"
-        );
-       
-        referenceLetters[_letterID].letterDocument.seenDate=block.timestamp;
-        referenceLetters[_letterID].letterStatus=status.SeenByRecipient;
-        emit LetterSeenByRecipient(_letterID, referenceLetters[_letterID].student, referenceLetters[_letterID].teacher, block.timestamp );
-
-    }
-    
-
-} 
+}

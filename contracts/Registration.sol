@@ -4,7 +4,14 @@ contract Registration{
   address YOK;
   address TOBB;
   address CB;
+
   enum Unvan { DR, AS_PROF, PROF,MD }
+
+   struct University
+    {
+      bool status;
+      string name;
+    }
   struct Teacher
     {
       bool status;
@@ -34,11 +41,13 @@ contract Registration{
       bool status;
       string name;
     }
+    mapping(address=>University) public universities;
     mapping(address=>Teacher) public teachers;
     mapping(address=>Company) public  companies;
     mapping(address=>PublicInstitution) public publicInstitutions;
     mapping(address=>Student) public students;
 
+    event UniversityRegisteredLog(address _universityAddress,string  _name);
     event StudentRegisteredLog(address _studentAddress,string  _name,string  _surname,string  _department,string  _university);
     event TeacherRegisteredLog(address _teacherAddress,string  _name,string  _surname,string  _department,string  _university,Unvan _unvan);
     event CompanyRegisteredLog(address _companyAddress,string  _name, uint _identityNumber,string  _country);
@@ -69,6 +78,12 @@ contract Registration{
       );
       _;
     }    
+    modifier onlyUniversity{
+      require(universities[msg.sender].status,
+      "Sadece Universite bu islemi yapabilir."
+      );
+      _;
+    } 
 
      function isStudent(address _address) public view returns(bool){
         return students[_address].status;
@@ -82,12 +97,26 @@ contract Registration{
       function isPublicInstitution(address _address) public view returns(bool){
         return publicInstitutions[_address].status;
     }
+      function isUniversity(address _address) public view returns(bool){
+        return universities[_address].status;
+    }
       function isRecipient(address _address) public view returns(bool){
         return companies[_address].status||publicInstitutions[_address].status;
     }
-
-  function registerStudent(address _studentAddress,string memory _name,string memory _surname,string memory _department,string memory _university) 
+ function registerUniversity(address _universityAddress,string memory _name) 
   public onlyYOK{
+        require(!universities[_universityAddress].status,
+            "University exists already"
+            );
+            
+        universities[_universityAddress].status=true;
+        universities[_universityAddress].name=_name;
+
+        emit UniversityRegisteredLog( _universityAddress, _name);
+       
+    }
+  function registerStudent(address _studentAddress,string memory _name,string memory _surname,string memory _department,string memory _university) 
+  public onlyUniversity{
         require(!students[_studentAddress].status,
             "Student exists already"
             );
@@ -101,7 +130,7 @@ contract Registration{
     }
 
      function registerTeacher(address _teacherAddress,string memory _name,string memory _surname,string memory _department,string memory _university,Unvan _unvan) 
-  public onlyYOK{
+  public onlyUniversity{
         require(!teachers[_teacherAddress].status,
             "Teacher exists already"
             );
