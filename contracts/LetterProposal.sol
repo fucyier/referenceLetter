@@ -40,6 +40,8 @@ contract LetterProposal{
     }
 
     event LetterCreated(uint letterID,address student,address teacher);
+    
+    event LetterDeleted(uint letterID,address student);
 
     event LetterEvaluated(uint letterID,address student,address teacher,uint evaluatedDate);
 
@@ -92,6 +94,17 @@ contract LetterProposal{
         emit LetterCreated(letterID, msg.sender,_teacherAddress);
 
     }
+
+     function deleteProposal(uint _letterID) public onlyStudent {
+        require(referenceLetters[_letterID].letterStatus==status.Created,
+        "Silmek icin Referans durumunun CREATED olmasi gerekir"
+        );
+         ReferenceLetter memory test;
+        referenceLetters[letterID]=test;
+        
+        emit LetterDeleted(letterID, msg.sender);
+
+    }
     
     function letterFirstEvaluate(uint _letterID) public onlyTeacher  returns(string memory) {
         require(referenceLetters[_letterID].letterStatus==status.Created,
@@ -131,6 +144,20 @@ contract LetterProposal{
         );
        require(referenceLetters[_letterID].letterStatus==status.TeacherAdmitted,
         "referansin kabul edilmis durumda olmasi gerekir"
+        );
+        referenceLetters[_letterID].letterDocument.letterHash=_letterHash;
+          referenceLetters[_letterID].letterDocument.writtenDate=block.timestamp;
+        referenceLetters[_letterID].letterStatus=status.TeacherCompleted;
+           emit LetterAdded( _letterID,  referenceLetters[_letterID].student, msg.sender, block.timestamp);
+
+    }
+
+     function updateLetter(uint _letterID, bytes32 _letterHash ) public onlyTeacher{
+        require(referenceLetters[_letterID].teacher==msg.sender,
+        "Yalnizca kendinize atanan belgeye ulasabilirsiiniz"
+        );
+       require(referenceLetters[_letterID].letterStatus!=status.SeenByRecipient,
+        "referansin kurumlara ulasmamis olmasi gerekir"
         );
         referenceLetters[_letterID].letterDocument.letterHash=_letterHash;
           referenceLetters[_letterID].letterDocument.writtenDate=block.timestamp;

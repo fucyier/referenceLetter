@@ -115,6 +115,18 @@ contract Registration{
         emit UniversityRegisteredLog( _universityAddress, _name);
        
     }
+    function updateUniversity(address _universityAddress,string memory _name,bool _status) 
+  public onlyYOK{
+        require(universities[_universityAddress].status,
+            "University not exists"
+            );
+            
+        universities[_universityAddress].status=_status;
+        universities[_universityAddress].name=_name;
+
+        emit UniversityRegisteredLog( _universityAddress, _name);
+       
+    }
   function registerStudent(address _studentAddress,string memory _name,string memory _surname,string memory _department,string memory _university) 
   public onlyUniversity{
         require(!students[_studentAddress].status,
@@ -122,6 +134,19 @@ contract Registration{
             );
             
         students[_studentAddress].status=true;
+        students[_studentAddress].name=_name;
+        students[_studentAddress].surname=_surname;
+        students[_studentAddress].university=_university;
+        students[_studentAddress].department=_department;
+        emit StudentRegisteredLog( _studentAddress,  _name,  _surname,  _department,  _university);
+    }
+     function updateStudent(address _studentAddress,string memory _name,string memory _surname,string memory _department,string memory _university,bool _status) 
+  public onlyUniversity{
+        require(students[_studentAddress].status,
+            "Student not exists"
+            );
+            
+        students[_studentAddress].status=_status;
         students[_studentAddress].name=_name;
         students[_studentAddress].surname=_surname;
         students[_studentAddress].university=_university;
@@ -144,6 +169,21 @@ contract Registration{
 
         emit TeacherRegisteredLog( _teacherAddress,  _name,  _surname,  _department,  _university, _unvan);
     }
+     function updateTeacher(address _teacherAddress,string memory _name,string memory _surname,string memory _department,string memory _university,Unvan _unvan,bool _status) 
+  public onlyUniversity{
+        require(teachers[_teacherAddress].status,
+            "Teacher not exists"
+            );
+            
+        teachers[_teacherAddress].status=_status;
+        teachers[_teacherAddress].unvan=_unvan;
+        teachers[_teacherAddress].name=_name;
+        teachers[_teacherAddress].surname=_surname;
+        teachers[_teacherAddress].university=_university;
+        teachers[_teacherAddress].department=_department;
+
+        emit TeacherRegisteredLog( _teacherAddress,  _name,  _surname,  _department,  _university, _unvan);
+    }
   function registerCompany(address _companyAddress,string memory _name, uint _identityNumber,string memory _country) 
   public onlyTOBB{
         require(!companies[_companyAddress].status,
@@ -158,6 +198,21 @@ contract Registration{
         emit CompanyRegisteredLog( _companyAddress,  _name,  _identityNumber,  _country);
        
     }
+
+    function updateCompany(address _companyAddress,string memory _name, uint _identityNumber,string memory _country,bool _status) 
+  public onlyTOBB{
+        require(companies[_companyAddress].status,
+            "Company not exists "
+            );
+            
+        companies[_companyAddress].status=_status;
+         companies[_companyAddress].name=_name;
+         companies[_companyAddress].country=_country;
+        companies[_companyAddress].identityNumber=_identityNumber;
+
+        emit CompanyRegisteredLog( _companyAddress,  _name,  _identityNumber,  _country);
+       
+    }
      function registerPublicInstitution(address _institutionAddress,string memory _name) 
      public onlyCB{
         require(!publicInstitutions[_institutionAddress].status,
@@ -165,6 +220,19 @@ contract Registration{
             );
             
         publicInstitutions[_institutionAddress].status=true;
+        publicInstitutions[_institutionAddress].name=_name;
+
+        emit PublicInstitutionRegisteredLog( _institutionAddress,  _name);
+       
+    }
+
+     function updatePublicInstitution(address _institutionAddress,string memory _name,bool _status) 
+     public onlyCB{
+        require(publicInstitutions[_institutionAddress].status,
+            "Public Institution not exists "
+            );
+            
+        publicInstitutions[_institutionAddress].status=_status;
         publicInstitutions[_institutionAddress].name=_name;
 
         emit PublicInstitutionRegisteredLog( _institutionAddress,  _name);
